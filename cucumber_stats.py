@@ -1,6 +1,7 @@
 import itertools
 import json
 import urllib
+from collections import defaultdict
 
 
 def gather_jobs(job_name):
@@ -34,12 +35,15 @@ def mapper(tests):
 
     >>> tests = [('foo', 'PASSED'), ('foo', 'FAILED'), ('bar', 'PASSED')]
     >>> mapper(tests)
-    {'foo': ['FAILED', 'PASSED'], 'bar': ['PASSED']}
+    {'foo': {'FAILED': 1, 'PASSED': 1}, 'bar': {'PASSED': 1}}
     '''
     mapped_tests = {}
     tests.sort()
     for key, group in itertools.groupby(tests, lambda x: x[0]):
-        mapped_tests[key] = [test[1] for test in group]
+        d = defaultdict(int)
+        for test in group:
+            d[test[1]] += 1
+        mapped_tests[key] = dict(d)
     return mapped_tests
 
 
