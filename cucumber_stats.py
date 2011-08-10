@@ -47,18 +47,44 @@ def mapper(tests):
     return mapped_tests
 
 
+def compute_success_rate(result_dict):
+    '''
+    Computes the success rate for a given test result
+
+    >>> t = {'FAILED':30,'PASSED':60,'FIXED':10,'REGRESSION':5}
+    >>> compute_success_rate(t)
+    0.66666666666666663
+    >>> t = {'FAILED':30}
+    >>> compute_success_rate(t)
+    0.0
+    '''
+    fails = result_dict.get('FAILED', 0) + result_dict.get('REGRESSION', 0)
+    passes = result_dict.get('FIXED', 0) + result_dict.get('PASSED', 0)
+    total = fails + passes
+    try:
+        return passes / float(total)
+    except ZeroDivisionError, e:
+        return 0.0
+    
+
 def dump_results(results):
-    for r in results:
-        print "%s\t%s" % r
+    for k,v in results.items():
+        print "%s\t%s" % (compute_success_rate(v), k)
+
+
+def flatten(list_of_lists):
+    return sum(list_of_lists, [])
+
 
 if __name__ == '__main__':
     all_dev_cucumber_jobs = gather_jobs('dev-cucumber')
     builds = [b['number'] for b in all_dev_cucumber_jobs['builds']]
+    results = []
     for b in builds:
         try:
             report = fetch_report_for_build('dev-cucumber', b)
             cases = cases_for_build_report(report)
-            results = group_tests_by_status(cases)
-            dump_results(results)
+            results.append(group_tests_by_status(cases))
         except ValueError:
             pass
+    dump_results(mapper(flatten(results)))
