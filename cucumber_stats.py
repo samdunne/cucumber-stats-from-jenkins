@@ -5,10 +5,12 @@ import urllib
 from collections import defaultdict
 
 
-def collect_builds_for_job(job_name):
+def collect_builds_for_job(job_name, start=None, end=None):
     url = "http://hudson/job/%s/api/json" % job_name
-    return json.load(urllib.urlopen(url))
-
+    the_job = json.load(urllib.urlopen(url))
+    builds = [b['number'] for b in the_job['builds']]
+    builds.sort()
+    return builds
 
 def fetch_report_for_build(job_name, build):
     url = "http://hudson/job/%s/%s/testReport/api/json" % (job_name, build)
@@ -89,9 +91,7 @@ def truncate_build_list(start_at, l):
 
 
 if __name__ == '__main__':
-    all_dev_cucumber_jobs = collect_builds_for_job('dev-cucumber')
-    builds = [b['number'] for b in all_dev_cucumber_jobs['builds']]
-    builds.sort()
+    builds = collect_builds_for_job('dev-cucumber')
     results = []
     if len(sys.argv) >= 1:
         start_at = int(sys.argv[1])
