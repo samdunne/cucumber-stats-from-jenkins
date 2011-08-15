@@ -10,7 +10,9 @@ def collect_builds_for_job(job_name, start=None, end=None):
     the_job = json.load(urllib.urlopen(url))
     builds = [b['number'] for b in the_job['builds']]
     builds.sort()
-    return builds
+    start = 0 or start
+    end = len(builds) or end
+    return builds[start:end]
 
 def fetch_report_for_build(job_name, build):
     url = "http://hudson/job/%s/%s/testReport/api/json" % (job_name, build)
