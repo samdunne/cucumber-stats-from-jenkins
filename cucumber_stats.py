@@ -5,7 +5,7 @@ import urllib
 from collections import defaultdict
 
 
-def gather_jobs(job_name):
+def collect_builds_for_job(job_name):
     url = "http://hudson/job/%s/api/json" % job_name
     return json.load(urllib.urlopen(url))
 
@@ -89,7 +89,7 @@ def truncate_build_list(start_at, l):
 
 
 if __name__ == '__main__':
-    all_dev_cucumber_jobs = gather_jobs('dev-cucumber')
+    all_dev_cucumber_jobs = collect_builds_for_job('dev-cucumber')
     builds = [b['number'] for b in all_dev_cucumber_jobs['builds']]
     builds.sort()
     results = []
