@@ -1,3 +1,4 @@
+import sys
 import itertools
 import json
 import urllib
@@ -69,17 +70,32 @@ def compute_success_rate(result_dict):
 
 def dump_results(results):
     for k,v in results.items():
-        print "%s\t%s" % (compute_success_rate(v), k)
+        print "%s\t%s\t%s" % (compute_success_rate(v), k, v)
 
 
 def flatten(list_of_lists):
     return sum(list_of_lists, [])
 
 
+def truncate_build_list(start_at, l):
+    '''
+
+    >>> l = [1,2,3,4,5,6,7,8,9]
+    >>> truncate_build_list(5, l)
+    [5, 6, 7, 8, 9]
+    '''
+    start_at_index = l.index(start_at)
+    return l[start_at_index:]
+
+
 if __name__ == '__main__':
     all_dev_cucumber_jobs = gather_jobs('dev-cucumber')
     builds = [b['number'] for b in all_dev_cucumber_jobs['builds']]
+    builds.sort()
     results = []
+    if len(sys.argv) >= 1:
+        start_at = int(sys.argv[1])
+        builds = truncate_build_list(start_at, builds)
     for b in builds:
         try:
             report = fetch_report_for_build('dev-cucumber', b)
