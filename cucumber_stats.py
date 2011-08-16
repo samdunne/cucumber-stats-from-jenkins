@@ -5,14 +5,16 @@ import urllib
 from collections import defaultdict
 
 
-def collect_builds_for_job(job_name, start=None, end=None):
+def collect_builds_for_job(job_name, start=None):
     url = "http://hudson/job/%s/api/json" % job_name
     the_job = json.load(urllib.urlopen(url))
     builds = [b['number'] for b in the_job['builds']]
     builds.sort()
-    start = 0 or start
-    end = len(builds) or end
-    return builds[start:end]
+    if start:
+        return truncate_build_list(start, builds)
+    else:
+        return builds
+
 
 def fetch_report_for_build(job_name, build):
     url = "http://hudson/job/%s/%s/testReport/api/json" % (job_name, build)
@@ -70,10 +72,10 @@ def compute_success_rate(result_dict):
         return passes / float(total)
     except ZeroDivisionError, e:
         return 0.0
-    
+
 
 def dump_results(results):
-    for k,v in results.items():
+    for k, v in results.items():
         print "%s\t%s\t%s" % (compute_success_rate(v), k, v)
 
 
@@ -93,11 +95,11 @@ def truncate_build_list(start_at, l):
 
 
 if __name__ == '__main__':
-    builds = collect_builds_for_job('dev-cucumber')
-    results = []
+    start_at = None
     if len(sys.argv) >= 1:
         start_at = int(sys.argv[1])
-        builds = truncate_build_list(start_at, builds)
+    builds = collect_builds_for_job('dev-cucumber', start_at)
+    results = []
     for b in builds:
         try:
             report = fetch_report_for_build('dev-cucumber', b)
