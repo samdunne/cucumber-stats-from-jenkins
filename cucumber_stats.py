@@ -36,7 +36,7 @@ def extract_group_for_build(b):
     return group_tests_by_status(cases)
 
 
-def mapper(tests):
+def reducer(tests):
     '''
     Expects to be called with a list of grouped tests
 
@@ -107,4 +107,4 @@ if __name__ == '__main__':
             results.append(group_tests_by_status(cases))
         except ValueError:
             pass
-    dump_results(mapper(flatten(results)))
+    dump_results(reducer(flatten(results)))
