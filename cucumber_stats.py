@@ -98,11 +98,11 @@ if __name__ == '__main__':
     start_at = None
     if len(sys.argv) >= 1:
         start_at = int(sys.argv[1])
-    builds = collect_builds_for_job('dev-cucumber', start_at)
+    builds = collect_builds_for_job('stable-cucumber', start_at)
     results = []
     for b in builds:
         try:
-            report = fetch_report_for_build('dev-cucumber', b)
+            report = fetch_report_for_build('stable-cucumber', b)
             cases = cases_for_build_report(report)
             results.append(group_tests_by_status(cases))
         except ValueError:
